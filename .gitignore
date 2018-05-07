@@ -1,0 +1,11 @@
+# Created by .ignore support plugin (hsz.mobi)
+/.idea
+*.pyc
+/gerapy.egg-info
+/dist
+/build
+npm-debug.log
+/test
+*.log
+/projects/*
+!project/

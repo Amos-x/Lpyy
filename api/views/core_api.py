@@ -118,9 +118,9 @@ class ProjectDetail(APIView):
         need: description
         """
         obj = self.get_object(pk)
-        build_project(obj.name)
         path = os.path.abspath(os.path.join(os.getcwd(), settings.PROJECTS_FOLDER))
         project_path = os.path.join(path, obj.name)
+        build_project(obj.name)
         egg = find_egg(project_path)
         if not egg:
             return Response({'message': 'egg not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -170,8 +170,11 @@ class ProjectDeploy(APIView):
         project : project id as required
         client : client id as required
         """
-        pro_obj = models.Project.objects.get(id=request.data.get('project'))
-        cli_obj = models.Client.objects.get(id=request.data.get('client'))
+        try:
+            pro_obj = models.Project.objects.get(id=request.data.get('project'))
+            cli_obj = models.Client.objects.get(id=request.data.get('client'))
+        except:
+            return Response({"status": "error", "message": "Parameter Error"}, status=status.HTTP_400_BAD_REQUEST)
         path = os.path.abspath(os.path.join(os.getcwd(), settings.PROJECTS_FOLDER))
         project_path = os.path.join(path, pro_obj.name)
         egg = find_egg(project_path)
