@@ -2,5 +2,4 @@
 # Email: 379833553@qq.com
 
 from api.views.core_api import *
-from api.views.public_opinion import *
 from api.views.scheduler import *

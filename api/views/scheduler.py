@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from django.conf import settings
 from django.db.models import Q
-from django.core.mail import send_mass_mail,BadHeaderError
+# from django.core.mail import send_mass_mail,BadHeaderError
 from django.forms import model_to_dict
 from django.http import Http404
 from api import serializers
@@ -32,25 +32,25 @@ job_defaults = {
 scheduler = BackgroundScheduler(executors=executors,job_defaults=job_defaults)
 scheduler.add_jobstore(DjangoJobStore(), 'default')
 register_events(scheduler)
-scheduler.start()
+# scheduler.start()
 logger.info('Scheduler started')
 
 
-def send_mass_email():
-    subject = '汇大舆情信息提醒'
-    from_email = settings.DEFAULT_FROM_EMAIL
-    to_email_user_objs = models.OaUsersInfo.objects.filter(is_send_email=True).all()
-    info_list = []
-    for obj in to_email_user_objs:
-        # TODO 这里查出未读信息，放入messgae中
-        message = '测试用数据'
-        mess = (subject,message,from_email,[obj.email])
-        info_list.append(mess)
-        try:
-            success_num = send_mass_mail(tuple(info_list),fail_silently=False)
-            logger.info('邮件发送成功,成功数量：%s' % success_num)
-        except BadHeaderError:
-            logger.error('发送邮件错误：Invalid header found')
+# def send_mass_email():
+#     subject = '汇大舆情信息提醒'
+#     from_email = settings.DEFAULT_FROM_EMAIL
+#     to_email_user_objs = models.OaUsersInfo.objects.filter(is_send_email=True).all()
+#     info_list = []
+#     for obj in to_email_user_objs:
+#         # 这里查出未读信息，放入messgae中
+#         message = '测试用数据'
+#         mess = (subject,message,from_email,[obj.email])
+#         info_list.append(mess)
+#         try:
+#             success_num = send_mass_mail(tuple(info_list),fail_silently=False)
+#             logger.info('邮件发送成功,成功数量：%s' % success_num)
+#         except BadHeaderError:
+#             logger.error('发送邮件错误：Invalid header found')
 
 
 def spider_scheduler(client,project,spiders,name):
@@ -185,48 +185,48 @@ def task_switch(request):
         return Response({'status':'error',"message":"params error"},status=status.HTTP_400_BAD_REQUEST)
 
 
-class EmailScheduler(APIView):
-
-    def get(self,request,format=None):
-        """
-        get email-scheduler-job info
-        """
-        email_job = models.DjangoJob.objects.filter(name='email_scheduler').first()
-        if email_job:
-            job = scheduler.get_job(job_id=email_job.name)
-            info = get_schedulerjob_info(job=job)
-            return Response(info)
-        return Response({'status': 'error','message':'email scheduler do not exist'})
-
-    def post(self,request,format=None):
-        """
-        create a email-scheduler-job
-        need params:
-        crontab : 任务调度计划时间，crontab的校验需要前端限制一下
-        """
-        email_job = models.DjangoJob.objects.filter(name='email_scheduler').first()
-        if not email_job:
-            crontab = request.data.get('crontab')
-            if not crontab:
-                crontab = '00 10 * * *'
-            job = scheduler.add_job(send_mass_email,CronTrigger.from_crontab(crontab),id='email_scheduler')
-            info = get_schedulerjob_info(job=job)
-            return Response(info,status=status.HTTP_201_CREATED)
-        return Response({'status':"error","message":'email-scheduler-job is exist'},status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self,request,format=None):
-        """
-        修改邮箱功能调度时间，need params：
-        crrontab: 调度时间
-        """
-        crontab = request.data.get('crontab')
-        if crontab:
-            job = scheduler.reschedule_job(job_id='email_scheduler',trigger=CronTrigger.from_crontab(crontab))
-            info = get_schedulerjob_info(job=job)
-            return Response(info)
-        return Response({"status": "error", "message": "Parameter Error"},status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self,request,format=None):
-        scheduler.remove_job(job_id='email_scheduler')
-        return Response(status=status.HTTP_204_NO_CONTENT)
+# class EmailScheduler(APIView):
+#
+#     def get(self,request,format=None):
+#         """
+#         get email-scheduler-job info
+#         """
+#         email_job = models.DjangoJob.objects.filter(name='email_scheduler').first()
+#         if email_job:
+#             job = scheduler.get_job(job_id=email_job.name)
+#             info = get_schedulerjob_info(job=job)
+#             return Response(info)
+#         return Response({'status': 'error','message':'email scheduler do not exist'})
+#
+#     def post(self,request,format=None):
+#         """
+#         create a email-scheduler-job
+#         need params:
+#         crontab : 任务调度计划时间，crontab的校验需要前端限制一下
+#         """
+#         email_job = models.DjangoJob.objects.filter(name='email_scheduler').first()
+#         if not email_job:
+#             crontab = request.data.get('crontab')
+#             if not crontab:
+#                 crontab = '00 10 * * *'
+#             job = scheduler.add_job(send_mass_email,CronTrigger.from_crontab(crontab),id='email_scheduler')
+#             info = get_schedulerjob_info(job=job)
+#             return Response(info,status=status.HTTP_201_CREATED)
+#         return Response({'status':"error","message":'email-scheduler-job is exist'},status=status.HTTP_400_BAD_REQUEST)
+#
+#     def put(self,request,format=None):
+#         """
+#         修改邮箱功能调度时间，need params：
+#         crrontab: 调度时间
+#         """
+#         crontab = request.data.get('crontab')
+#         if crontab:
+#             job = scheduler.reschedule_job(job_id='email_scheduler',trigger=CronTrigger.from_crontab(crontab))
+#             info = get_schedulerjob_info(job=job)
+#             return Response(info)
+#         return Response({"status": "error", "message": "Parameter Error"},status=status.HTTP_400_BAD_REQUEST)
+#
+#     def delete(self,request,format=None):
+#         scheduler.remove_job(job_id='email_scheduler')
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 

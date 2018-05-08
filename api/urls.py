@@ -7,8 +7,6 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.schemas import get_schema_view
 
 router = DefaultRouter()
-router.register('customer',views.CustomerViewset)
-router.register('keyword',views.KeywordViewset)
 
 schema_view = get_schema_view(title='Pastebin API')
 
@@ -27,5 +25,5 @@ urlpatterns = [
     path('task/',views.TaskList.as_view()),
     re_path('task/(?P<pk>[0-9]+)/$',views.TaskDetail.as_view()),
     path('task/switch/',views.task_switch),
-    path('task/email/',views.EmailScheduler.as_view()),
+    # path('task/email/',views.EmailScheduler.as_view()),
 ]

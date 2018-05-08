@@ -4,6 +4,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager,AbstractBaseUser,PermissionsMixin
 
+
 class MyUserManager(BaseUserManager):
 
     def create_user(self,username,email,full_name,password=None):

@@ -65,20 +65,6 @@ class ProDepSerializers(serializers.ModelSerializer):
         fields = ('id','name','description','egg','built_at','pro_deploy')
 
 
-class CustomerSerializers(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Customer
-        fields = ('id','name','info','is_active')
-
-
-class KeywordSerializers(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Keyword
-        fields = ('id','name','description')
-
-
 class TaskSerializers(serializers.ModelSerializer):
     client = ClientSimpleInfoSerializers(read_only=True)
     project = ProjectSimpleInfoSerializers(read_only=True)

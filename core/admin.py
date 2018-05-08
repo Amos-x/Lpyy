@@ -85,8 +85,5 @@ admin.site.unregister(Group)
 
 admin.site.register(models.Client)
 admin.site.register(models.Project)
-admin.site.register(models.Customer)
-admin.site.register(models.Keyword)
 admin.site.register(models.Deploy)
 admin.site.register(models.Task)
-admin.site.register(models.OaUsersInfo)

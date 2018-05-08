@@ -37,10 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',
-    'api',
     'rest_framework',
-    'django_apscheduler'
+    'django_apscheduler',
+    'core',
+    'api'
 ]
 
 MIDDLEWARE = [
@@ -58,7 +58,7 @@ ROOT_URLCONF = 'Lpyy.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['frontend'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'Lpyy.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'lpyy',
+        'NAME': 'test',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'USER': 'root',
@@ -125,11 +125,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-# 静态文件设为Vue项目的静态文件
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "frontend/static"),
-]
+# 静态文件设为Vue项目的静态文件
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "static"),
+# ]
 
 # 项目文件夹名称
 PROJECTS_FOLDER = 'projects'
@@ -157,7 +157,7 @@ REST_FRAMEWORK = {
 }
 
 # email的SMTP配置
-EMAIL_BACKEND  =  'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.exmail.qq.com'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = 'creatson@creatson.com'
@@ -212,7 +212,7 @@ LOGGING = {
         'default': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': 'C:\\Users\Amos\PycharmProjects\Lpyy\Lpyy.log',  # 日志输出文件
+            'filename': os.path.join(BASE_DIR, 'logs', 'lpyydebug.log'),  # 日志输出文件
             'maxBytes': 1024*1024*50,   # 文件大小,50M
             'backupCount': 5,   # 备份份数
             'formatter':'standard',    # 使用哪种formatters日志格式
@@ -220,7 +220,7 @@ LOGGING = {
         'error': {
             'level':'ERROR',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': 'C:\\Users\Amos\PycharmProjects\Lpyy\LpyyError.log',
+            'filename': os.path.join(BASE_DIR, 'logs', 'lpyyerror.log'),
             'maxBytes':1024*1024*50,    # 文件大小,50M
             'backupCount': 5,
             'formatter':'standard',

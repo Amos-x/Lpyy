@@ -3,4 +3,3 @@
 
 from core.models.myauth import *
 from core.models.core import *
-from core.models.public_opinion import *
