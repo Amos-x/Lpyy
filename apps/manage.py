@@ -4,6 +4,7 @@ import sys
 import django
 
 if __name__ == "__main__":
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Lpyy.settings")
     django.setup()
     try:

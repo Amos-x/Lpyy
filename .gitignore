@@ -1,11 +1,24 @@
 # Created by .ignore support plugin (hsz.mobi)
+# ideal pycharm
 /.idea
+
+# python
 *.pyc
-/gerapy.egg-info
-/dist
-/build
-npm-debug.log
-/test
+__pycache__/
+
+# vue front
+# /dist
+# /build
+# npm-debug.log
+
+# logs files
 *.log
-/projects/*
-!project/
+
+# project files
+/projects
+
+# tmp files
+/tmp
+
+# migrations files
+migrations/0*.py

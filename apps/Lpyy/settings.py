@@ -11,10 +11,25 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_DIR = os.path.dirname(BASE_DIR)
 
+sys.path.append(PROJECT_DIR)
+
+# import config
+try:
+    from config import config as CONFIG
+except ImportError:
+    msg = """
+    
+    Error: No config file found.
+    
+    Please check the integrity of the project.
+    """
+    raise ImportError(msg)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -23,9 +38,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = ')apfaar#k7y#_l2i)mivt@by97()iwul(s$@8pze5z)3w@_kgk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = CONFIG.DEBUG or False
 
-ALLOWED_HOSTS = ['*']
+# LOG LEVEL
+LOG_LEVEL = 'DEBUG' if DEBUG else CONFIG.LOG_LEVEL or 'WARNING'
+
+ALLOWED_HOSTS = CONFIG.ALLOWED_HOSTS or []
 
 
 # Application definition
@@ -40,7 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_apscheduler',
     'core',
-    'api'
+    'apps.api'
 ]
 
 MIDDLEWARE = [
@@ -79,12 +97,12 @@ WSGI_APPLICATION = 'Lpyy.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'USER': 'root',
-        'PASSWORD': 'wyx379833553',
+        'ENGINE': 'django.db.backends.{}'.format(CONFIG.DB_ENGINE),
+        'NAME': CONFIG.DB_NAME,
+        'HOST': CONFIG.DB_HOST,
+        'PORT': CONFIG.DB_PORT,
+        'USER': CONFIG.DB_USER,
+        'PASSWORD': CONFIG.DB_PASSWORD,
     }
 }
 
@@ -111,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-Hans'
 
 TIME_ZONE = 'Asia/Shanghai'
 
@@ -158,37 +176,33 @@ REST_FRAMEWORK = {
 
 # email的SMTP配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.exmail.qq.com'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = 'creatson@creatson.com'
-EMAIL_HOST_PASSWORD = 'Krs201705'
-EMAIL_USE_SSL = True
-DEFAULT_FROM_EMAIL = 'creatson@creatson.com'    # 默认系统邮箱
-SERVER_EMAIL = 'creatson@creatson.com'  # 错误消息邮件发送者，即管理员邮箱
+EMAIL_HOST = CONFIG.EMAIL_HOST
+EMAIL_PORT = CONFIG.EMAIL_PORT
+EMAIL_HOST_USER = CONFIG.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = CONFIG.EMAIL_HOST_PASSWORD
+EMAIL_USE_SSL = CONFIG.EMAIL_USE_SSL
+DEFAULT_FROM_EMAIL = CONFIG.EMAIL_HOST_USER    # 默认系统邮箱
+SERVER_EMAIL = CONFIG.EMAIL_HOST_USER  # 错误消息邮件发送者，即管理员邮箱
 
 
 # session配置
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
+
 # 缓存配置
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://:wyx379833553@127.0.0.1:6379/6",   # redis单实例连接
-        # "LOCATION": [   # redis集群配置,是连接服务端口，不是哨兵端口。
-        #     "redis://192.168.9.80:6379/10",
-        #     "redis://192.168.9.80:6380/10",
-        #     "redis://192.168.9.80:6381/10",
-        # ],
+        "LOCATION": CONFIG.REDIS_CACHE_LOCATION,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "SERIALIZER": "django_redis.serializers.msgpack.MSGPackSerializer",  # 指定序列化方式：msgpack（比json更快更小）
             "IGNORE_EXCEPTIONS": True,      # redis连接异常关闭时不触发异常
-            "CONNECTION_POOL_KWARGS": {"max_connections": 100},  # 连接池最大连接池
+            "CONNECTION_POOL_KWARGS": {"max_connections": CONFIG.REDIS_MAX_CONNECTIONS},  # 连接池最大连接数
         },
         'TIMEOUT': None,
-        'KEY_PREFIX': 'Operation_system',
+        'KEY_PREFIX': 'Spider_Manager',
     }
 }
 
@@ -212,17 +226,25 @@ LOGGING = {
         'default': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'lpyydebug.log'),  # 日志输出文件
+            'filename': os.path.join(PROJECT_DIR, 'logs', 'lpyy.log'),  # 日志输出文件
             'maxBytes': 1024*1024*50,   # 文件大小,50M
-            'backupCount': 5,   # 备份份数
+            'backupCount': 10,   # 备份份数
             'formatter':'standard',    # 使用哪种formatters日志格式
         },
         'error': {
             'level':'ERROR',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'lpyyerror.log'),
+            'filename': os.path.join(PROJECT_DIR, 'logs', 'lpyyerror.log'),
             'maxBytes':1024*1024*50,    # 文件大小,50M
             'backupCount': 5,
+            'formatter':'standard',
+        },
+        'tasks':{
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(PROJECT_DIR,'logs', 'tasks.log'),
+            'maxBytes': 1024*1024*50,
+            'backupCount': 10,
             'formatter':'standard',
         },
         'console':{
@@ -234,8 +256,13 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['default','console','error'],
-            'level': 'INFO',
-            'propagate': True
+            'level': LOG_LEVEL,
+            'propagate': True    # 日志是否传送到父logger，默认True
         },
+        'scheduler_task':{
+            'handlers':['tasks','error'],
+            'level': LOG_LEVEL,
+            'propagate': True
+        }
     }
 }

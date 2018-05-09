@@ -1,16 +1,14 @@
 # __author__ = "Amos"
 # Email: 379833553@qq.com
 
-from django.shortcuts import render,HttpResponse
-from django.http import JsonResponse,Http404
+from django.http import Http404
 from django.conf import settings
 from django.utils import timezone
-from django.forms.models import model_to_dict
 import os,pytz,time,requests,json
 from core.build import find_egg,build_project
 from core import utils
 from core import models
-from api import serializers
+from apps.api import serializers
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -94,7 +92,7 @@ class ProjectList(APIView):
         objs = models.Project.objects.all()
         p = PageNumberPagination()
         page = p.paginate_queryset(queryset=objs,request=request, view=self)
-        s = serializers.ProjectSerializers(page,many=True)
+        s = serializers.ProjectSerializers(page, many=True)
         return p.get_paginated_response(s.data)
 
 
@@ -126,7 +124,7 @@ class ProjectDetail(APIView):
             return Response({'message': 'egg not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         obj.built_at = timezone.now()
         obj.egg = egg
-        s = serializers.ProjectSerializers(obj,data=request.data)
+        s = serializers.ProjectSerializers(obj, data=request.data)
         if s.is_valid():
             s.save()
             return Response(s.data)
@@ -189,7 +187,7 @@ class ProjectDeploy(APIView):
         data1 = {"deployed_at": timezone.now(), "description": pro_obj.description}
         if deploy_obj:
             data2 = dict(request.data, **data1)
-            s = serializers.DeploySerializers(deploy_obj,data=data2)
+            s = serializers.DeploySerializers(deploy_obj, data=data2)
         else:
             # d = {'client_id':request.data.get('client'),'project_id':request.data.get('project')}
             data2 = dict(request.data, **data1)

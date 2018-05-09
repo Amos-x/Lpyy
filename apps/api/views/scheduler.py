@@ -14,10 +14,10 @@ from django.db.models import Q
 # from django.core.mail import send_mass_mail,BadHeaderError
 from django.forms import model_to_dict
 from django.http import Http404
-from api import serializers
+from apps.api import serializers
 from core import models
-from core.utils import get_scrapyd,get_schedulerjob_info
-import logging,json,re
+from core.utils import get_scrapyd
+import logging
 
 logger = logging.getLogger('django')
 
@@ -146,7 +146,7 @@ class TaskDetail(APIView):
         scheduler.modify_job(obj.name, kwargs=request.data)
         if request.data.get('spiders'):
             request.data['spiders'] = str(request.data.get('spiders'))
-        s = serializers.TaskSerializers(obj.jobinfo,request.data)
+        s = serializers.TaskSerializers(obj.jobinfo, request.data)
         if s.is_valid():
             s.save()
             return Response(s.data)
