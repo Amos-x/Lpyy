@@ -261,78 +261,78 @@ class ClientInfo(APIView):
         return Response({"status":"error","message": "Parameter Error"},status=status.HTTP_400_BAD_REQUEST)
 
 
-class Job(APIView):
+# class Job(APIView):
+#
+#     def get(self,request,format=None):
+#         """
+#         get project job list
+#         need params:
+#         client: as required
+#         project_name: as required
+#         """
+#         params = request.query_params.dict()
+#         client = params.get('client')
+#         if client:
+#             client_obj = models.Client.objects.filter(id=client).first()
+#             if client_obj:
+#                 scrapyd = utils.get_scrapyd(client_obj)
+#                 project_name = params.get('project_name')
+#                 projects = scrapyd.list_projects()
+#                 if project_name:
+#                     if project_name in projects:
+#                         result = scrapyd.list_jobs(project_name)
+#                         jobs = []
+#                         statuses = ['pending', 'running', 'finished']
+#                         for stat in statuses:
+#                             for job in result.get(stat):
+#                                 job['status'] = stat
+#                                 jobs.append(job)
+#                         return Response(jobs)
+#         return Response({"status":"error","message": "Parameter Error"},status=status.HTTP_400_BAD_REQUEST)
+#
+#     def post(self,request,format=None):
+#         """
+#         Schedule a job to run
+#         need params:
+#         client
+#         project_name
+#         spider
+#         """
+#         client = request.data.get('client')
+#         if client:
+#             client_obj = models.Client.objects.filter(id=client).first()
+#             if client_obj:
+#                 scrapyd = utils.get_scrapyd(client_obj)
+#                 project_name = request.data.get('project_name')
+#                 if project_name:
+#                     projects = scrapyd.list_projects()
+#                     if project_name in projects:
+#                         spider_name = request.data.get('spider')
+#                         spiders = scrapyd.list_spiders(project_name)
+#                         if spider_name in spiders:
+#                             job = scrapyd.schedule(project_name, spider_name)
+#                             pro_obj = models.Project.objects.filter(name=project_name).first()
+#                             if pro_obj:
+#                                 job_obj = models.ScrapydJobLog(
+#                                     client = client_obj,
+#                                     project = pro_obj,
+#                                     spider = spider_name,
+#                                     job = job,
+#                                 )
+#                                 job_obj.save()
+#                                 s = serializers.JobLogSerializers(job_obj)
+#                                 return Response(s.data,status=status.HTTP_201_CREATED)
+#                             return Response({'job':job,'warning':'project do not exist'},status=status.HTTP_204_NO_CONTENT)
+#         return Response({"status":"error","message": "Parameter Error"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self,request,format=None):
-        """
-        get project job list
-        need params:
-        client: as required
-        project_name: as required
-        """
-        params = request.query_params.dict()
-        client = params.get('client')
-        if client:
-            client_obj = models.Client.objects.filter(id=client).first()
-            if client_obj:
-                scrapyd = utils.get_scrapyd(client_obj)
-                project_name = params.get('project_name')
-                projects = scrapyd.list_projects()
-                if project_name:
-                    if project_name in projects:
-                        result = scrapyd.list_jobs(project_name)
-                        jobs = []
-                        statuses = ['pending', 'running', 'finished']
-                        for stat in statuses:
-                            for job in result.get(stat):
-                                job['status'] = stat
-                                jobs.append(job)
-                        return Response(jobs)
-        return Response({"status":"error","message": "Parameter Error"},status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self,request,format=None):
-        """
-        Schedule a job to run
-        need params:
-        client
-        project_name
-        spider
-        """
-        client = request.data.get('client')
-        if client:
-            client_obj = models.Client.objects.filter(id=client).first()
-            if client_obj:
-                scrapyd = utils.get_scrapyd(client_obj)
-                project_name = request.data.get('project_name')
-                if project_name:
-                    projects = scrapyd.list_projects()
-                    if project_name in projects:
-                        spider_name = request.data.get('spider')
-                        spiders = scrapyd.list_spiders(project_name)
-                        if spider_name in spiders:
-                            job = scrapyd.schedule(project_name, spider_name)
-                            pro_obj = models.Project.objects.filter(name=project_name).first()
-                            if pro_obj:
-                                job_obj = models.ScrapydJobLog(
-                                    client = client_obj,
-                                    project = pro_obj,
-                                    spider = spider_name,
-                                    job = job,
-                                )
-                                job_obj.save()
-                                s = serializers.JobLogSerializers(job_obj)
-                                return Response(s.data,status=status.HTTP_201_CREATED)
-                            return Response({'job':job,'warning':'project do not exist'},status=status.HTTP_204_NO_CONTENT)
-        return Response({"status":"error","message": "Parameter Error"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class JobLogList(APIView):
-
-    def get(self,request,format=None):
-        params = request.query_params.dict()
-        # TODO 编写根据参数进行joblog查询
-        queryset = models.ScrapydJobLog.objects.all()
-        p = PageNumberPagination()
-        page = p.paginate_queryset(queryset=queryset, request=request, view=self)
-        s = serializers.JobLogSerializers(page, many=True)
-        return p.get_paginated_response(s.data)
+# class JobLogList(APIView):
+#
+#     def get(self,request,format=None):
+#         params = request.query_params.dict()
+#         # TODO 编写根据参数进行joblog查询
+#         queryset = models.ScrapydJobLog.objects.all()
+#         p = PageNumberPagination()
+#         page = p.paginate_queryset(queryset=queryset, request=request, view=self)
+#         s = serializers.JobLogSerializers(page, many=True)
+#         return p.get_paginated_response(s.data)

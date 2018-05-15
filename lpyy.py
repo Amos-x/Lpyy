@@ -103,12 +103,65 @@ def start_gunicorn():
     return p
 
 
+def start_celery():
+    print("\n- Start Celery as Distributed Task Queue")
+    # Todo: Must set this environment, otherwise not no ansible result return
+    # os.environ.setdefault('PYTHONOPTIMIZE', '1')
+
+    # 解决celery无法使用root启动问题
+    if os.getuid() == 0:
+        os.environ.setdefault('C_FORCE_ROOT', '1')
+
+    service = 'celery'
+    pid_file = get_pid_file_path(service)
+    log_file = get_log_file_path(service)
+    cmd = [
+        'celery', 'worker',
+        '-A', 'Lpyy',
+        '-l', CONFIG.LOG_LEVEL.lower(),
+        '--pidfile', pid_file,
+        '-c', str(WORKERS),
+        '--logfile', log_file,
+        '--detach'
+    ]
+    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, cwd=APPS_DIR)
+    return p
+
+
+def start_beat():
+    print("\n- Start Beat as Periodic Task Scheduler")
+
+    service = 'beat'
+    pid_file = get_pid_file_path('service')
+    log_file = get_log_file_path('service')
+
+    # os.environ.setdefault('PYTHONOPTIMIZE', '1')
+    if os.getuid() == 0:
+        os.environ.setdefault('C_FORCE_ROOT', '1')
+
+    scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
+    cmd = [
+        'celery',  'beat',
+        '-A', 'Lpyy',
+        '--pidfile', pid_file,
+        '-l', CONFIG.LOG_LEVEL.lower(),
+        '--scheduler', scheduler,
+        '--max-interval', '60',
+        '--logfile', log_file,
+        '--detach'
+    ]
+    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, cwd=APPS_DIR)
+    return p
+
+
 def start_service(service):
     print(time.ctime())
     print('Lpyy version {}, by Amos'.format(__version__))
 
     services_handler = {
         'gunicorn': start_gunicorn,
+        'celery': start_celery,
+        'beat': start_beat
     }
 
     services_set = parse_service(service)

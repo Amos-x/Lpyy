@@ -2,7 +2,6 @@
 # Email: 379833553@qq.com
 
 from django.db import models
-from django_apscheduler.models import DjangoJob
 
 
 class Client(models.Model):
@@ -45,24 +44,24 @@ class Deploy(models.Model):
         unique_together = ('client', 'project')
 
 
-class Task(models.Model):
-    name = models.OneToOneField(DjangoJob,related_name='jobinfo',on_delete=models.CASCADE)
-    client = models.ForeignKey(Client,related_name='cli_tasks',unique=False, on_delete=models.DO_NOTHING)
-    project = models.ForeignKey(Project,related_name='pro_tasks',on_delete=models.DO_NOTHING)
-    spiders = models.TextField(null=True, blank=True)
-    crontab = models.TextField(null=True, blank=True)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+# class Task(models.Model):
+#     name = models.OneToOneField(DjangoJob,related_name='jobinfo',on_delete=models.CASCADE)
+#     client = models.ForeignKey(Client,related_name='cli_tasks',unique=False, on_delete=models.DO_NOTHING)
+#     project = models.ForeignKey(Project,related_name='pro_tasks',on_delete=models.DO_NOTHING)
+#     spiders = models.TextField(null=True, blank=True)
+#     crontab = models.TextField(null=True, blank=True)
+#     is_active = models.BooleanField(default=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+#
+#     def __str__(self):
+#         return self.name.name
 
-    def __str__(self):
-        return self.name.name
 
-
-class ScrapydJobLog(models.Model):
-    client = models.ForeignKey(Client,related_name='cli_logs',on_delete=models.CASCADE)
-    project = models.ForeignKey(Project,related_name='pro_logs',on_delete=models.DO_NOTHING)
-    spider = models.CharField(max_length=255)
-    job = models.CharField(max_length=255)
-    task = models.ForeignKey(DjangoJob,null=True,blank=True,related_name='joblog',on_delete=models.DO_NOTHING)
-    created_at = models.DateTimeField(auto_now_add=True)
+# class ScrapydJobLog(models.Model):
+#     client = models.ForeignKey(Client,related_name='cli_logs',on_delete=models.CASCADE)
+#     project = models.ForeignKey(Project,related_name='pro_logs',on_delete=models.DO_NOTHING)
+#     spider = models.CharField(max_length=255)
+#     job = models.CharField(max_length=255)
+#     task = models.ForeignKey(DjangoJob,null=True,blank=True,related_name='joblog',on_delete=models.DO_NOTHING)
+#     created_at = models.DateTimeField(auto_now_add=True)

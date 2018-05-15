@@ -56,7 +56,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'django_apscheduler',
+    # 'django_apscheduler',
+    'django_celery_results',
+    'django_celery_beat',
     'core',
     'apps.api'
 ]
@@ -160,8 +162,19 @@ LOGIN_URL = '/login'
 AUTH_USER_MODEL = 'core.UserProfile'
 
 # Apscheduler任务调度系统配置
-THREAD_POOL_NUM = 20
-MAX_INSTANCES = 1   # 同一job实例的并发执行数
+# THREAD_POOL_NUM = 20
+# MAX_INSTANCES = 1   # 同一job实例的并发执行数
+
+
+## Celery任务消息队列配置
+# CELERY_BROKER_URL = 'sentinel://192.168.9.80:16379;sentinel://192.168.9.80:16380;sentinel://192.168.9.80:16381'
+# CELERY_BROKER_URL = 'redis://:wyx379833553@127.0.0.1:6379/5'
+CELERY_BROKER_URL = CONFIG.CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ['json','msgpack']
+CELERY_TASK_SERIALIZER = 'msgpack'    # 序列化为json
+CELERY_RESULT_BACKEND  =  'django-db'    # 使用django ORM作为celery储存后端
+CELERY_RESULT_SERIALIZER = 'json'
+
 
 # rest-api 全局配置
 REST_FRAMEWORK = {
@@ -205,7 +218,6 @@ CACHES = {
         'KEY_PREFIX': 'Spider_Manager',
     }
 }
-
 # 配置缓存日志存储
 DJANGO_REDIS_LOGGER = 'django'
 

@@ -56,11 +56,10 @@ class Config:
     HTTP_BIND_HOST = '0.0.0.0'
     HTTP_LISTEN_PORT = 8000
 
-    # Use Redis as broker for celery and web socket
+    # Use Redis as cache broker for web socket
     # only choose one, Signgle Instance or Server Cluster?
     # Single Instance
     REDIS_CACHE_LOCATION = "redis://:wyx379833553@127.0.0.1:6379/6",   # redis单实例连接
-
     # Server Cluster , server port not sentinel port.
     # REDIS_CACHE_LOCATION = [
     #     "redis://192.168.9.80:6379/10",
@@ -68,8 +67,13 @@ class Config:
     #     "redis://192.168.9.80:6381/10",
     # ],
 
-    #
+    # Redis max connections for connect pool
     REDIS_MAX_CONNECTIONS = 100
+
+    # User redis as broker for celery
+    CELERY_BROKER_URL = 'redis://:wyx379833553@127.0.0.1:6379/5'
+    # User reids sentinel cluster
+    # CELERY_BROKER_URL = 'sentinel://192.168.9.80:16379;sentinel://192.168.9.80:16380;sentinel://192.168.9.80:16381'
 
     def __init__(self):
         pass
