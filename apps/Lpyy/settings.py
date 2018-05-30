@@ -161,6 +161,9 @@ LOGIN_URL = '/login'
 # 自定义用户模型
 AUTH_USER_MODEL = 'core.UserProfile'
 
+# 初始化数据文件目录
+FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures'), ]
+
 # Apscheduler任务调度系统配置
 # THREAD_POOL_NUM = 20
 # MAX_INSTANCES = 1   # 同一job实例的并发执行数
@@ -171,9 +174,9 @@ AUTH_USER_MODEL = 'core.UserProfile'
 # CELERY_BROKER_URL = 'redis://:wyx379833553@127.0.0.1:6379/5'
 CELERY_BROKER_URL = CONFIG.CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['json','msgpack']
-CELERY_TASK_SERIALIZER = 'msgpack'    # 序列化为json
+CELERY_TASK_SERIALIZER = 'msgpack'    # task序列化方式
 CELERY_RESULT_BACKEND  =  'django-db'    # 使用django ORM作为celery储存后端
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'   # 结果序列化方式
 
 
 # rest-api 全局配置
@@ -194,6 +197,7 @@ EMAIL_PORT = CONFIG.EMAIL_PORT
 EMAIL_HOST_USER = CONFIG.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = CONFIG.EMAIL_HOST_PASSWORD
 EMAIL_USE_SSL = CONFIG.EMAIL_USE_SSL
+EMAIL_SUBJECT_PREFIX = CONFIG.EMAIL_SUBJECT_PREFIX or ''
 DEFAULT_FROM_EMAIL = CONFIG.EMAIL_HOST_USER    # 默认系统邮箱
 SERVER_EMAIL = CONFIG.EMAIL_HOST_USER  # 错误消息邮件发送者，即管理员邮箱
 

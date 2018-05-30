@@ -5,6 +5,8 @@ import configparser,re
 from os.path import join
 from scrapyd_api import ScrapydAPI
 from django.core.mail import send_mail,BadHeaderError
+import os
+from django.conf import settings
 
 
 def config(path, section, option, name='scrapy.cfg', default=None):
@@ -61,3 +63,12 @@ def get_schedulerjob_info(job):
         'next_run_time': job.next_run_time,
     }
     return info
+
+
+def get_project_path(project_name=None):
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                        settings.PROJECTS_FOLDER)
+    if project_name:
+        return os.path.join(path, project_name)
+    else:
+        return path

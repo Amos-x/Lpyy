@@ -5,10 +5,10 @@ from django.http import Http404
 from django.conf import settings
 from django.utils import timezone
 import os,pytz,time,requests,json
-from core.build import find_egg,build_project
-from core import utils
-from core import models
-from apps.api import serializers
+from ..build import find_egg,build_project
+from .. import utils
+from .. import models
+from .. import serializers
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -64,7 +64,7 @@ class ClientDetail(APIView):
     def delete(self, request, pk, format=None):
         client = self.get_object(pk)
         if client.cli_tasks.all():
-            return Response({'status':"error","message":"scrapyd被应用为调度任务，无法删除"})
+            return Response({'status':"error","message":"此client被使用于调度任务中，无法删除"})
         client.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -73,7 +73,7 @@ class ProjectList(APIView):
 
     def get(self,request,format=None):
         """ List all project """
-        path = os.path.join(os.path.dirname(os.getcwd()), settings.PROJECTS_FOLDER)
+        path = utils.get_project_path()
         files = os.listdir(path)
         project_list = []
         for file in files:
@@ -116,8 +116,7 @@ class ProjectDetail(APIView):
         need: description
         """
         obj = self.get_object(pk)
-        path = os.path.join(os.path.dirname(os.getcwd()), settings.PROJECTS_FOLDER)
-        project_path = os.path.join(path, obj.name)
+        project_path = utils.get_project_path(obj.name)
         build_project(obj.name)
         egg = find_egg(project_path)
         if not egg:
@@ -134,12 +133,11 @@ class ProjectDetail(APIView):
         """ delete project """
         obj = self.get_object(pk)
         if obj.pro_tasks.all():
-            return Response({'status':"error","message":"项目被应用为调度任务，无法删除"})
+            return Response({'status': "error","message": "项目被使用于调度任务中，无法删除"})
         for client in obj.pro_deploy.all():
             scrapyd = utils.get_scrapyd(client.client)
             scrapyd.delete_project(obj.name)
-        path = os.path.join(os.path.dirname(os.getcwd()), settings.PROJECTS_FOLDER)
-        project_path = os.path.join(path, obj.name)
+        project_path = utils.get_project_path(obj.name)
         if os.path.exists(project_path):
             shutil.rmtree(project_path)
         obj.delete()
@@ -198,21 +196,6 @@ class ProjectDeploy(APIView):
         return Response(s.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-def client_status(request,pk):
-    """
-    get scrapy client status
-    """
-    if request.method == 'GET':
-        client_obj = models.Client.objects.get(pk=pk)
-        try:
-            url = utils.scrapyd_status_url(client_obj.ip,client_obj.port)
-            response = requests.get(url,timeout=2)
-            return Response(json.loads(response.text))
-        except:
-            return Response({"status": "error","message":"Connect Error"},status=500)
-
-
 class ClientInfo(APIView):
 
     def get(self,request,format=None):
@@ -261,78 +244,47 @@ class ClientInfo(APIView):
         return Response({"status":"error","message": "Parameter Error"},status=status.HTTP_400_BAD_REQUEST)
 
 
-# class Job(APIView):
-#
-#     def get(self,request,format=None):
-#         """
-#         get project job list
-#         need params:
-#         client: as required
-#         project_name: as required
-#         """
-#         params = request.query_params.dict()
-#         client = params.get('client')
-#         if client:
-#             client_obj = models.Client.objects.filter(id=client).first()
-#             if client_obj:
-#                 scrapyd = utils.get_scrapyd(client_obj)
-#                 project_name = params.get('project_name')
-#                 projects = scrapyd.list_projects()
-#                 if project_name:
-#                     if project_name in projects:
-#                         result = scrapyd.list_jobs(project_name)
-#                         jobs = []
-#                         statuses = ['pending', 'running', 'finished']
-#                         for stat in statuses:
-#                             for job in result.get(stat):
-#                                 job['status'] = stat
-#                                 jobs.append(job)
-#                         return Response(jobs)
-#         return Response({"status":"error","message": "Parameter Error"},status=status.HTTP_400_BAD_REQUEST)
-#
-#     def post(self,request,format=None):
-#         """
-#         Schedule a job to run
-#         need params:
-#         client
-#         project_name
-#         spider
-#         """
-#         client = request.data.get('client')
-#         if client:
-#             client_obj = models.Client.objects.filter(id=client).first()
-#             if client_obj:
-#                 scrapyd = utils.get_scrapyd(client_obj)
-#                 project_name = request.data.get('project_name')
-#                 if project_name:
-#                     projects = scrapyd.list_projects()
-#                     if project_name in projects:
-#                         spider_name = request.data.get('spider')
-#                         spiders = scrapyd.list_spiders(project_name)
-#                         if spider_name in spiders:
-#                             job = scrapyd.schedule(project_name, spider_name)
-#                             pro_obj = models.Project.objects.filter(name=project_name).first()
-#                             if pro_obj:
-#                                 job_obj = models.ScrapydJobLog(
-#                                     client = client_obj,
-#                                     project = pro_obj,
-#                                     spider = spider_name,
-#                                     job = job,
-#                                 )
-#                                 job_obj.save()
-#                                 s = serializers.JobLogSerializers(job_obj)
-#                                 return Response(s.data,status=status.HTTP_201_CREATED)
-#                             return Response({'job':job,'warning':'project do not exist'},status=status.HTTP_204_NO_CONTENT)
-#         return Response({"status":"error","message": "Parameter Error"}, status=status.HTTP_400_BAD_REQUEST)
+class EmailScheduler(APIView):
 
+    def get(self,request,format=None):
+        """
+        get email-scheduler-job info
+        """
+        email_job = models.DjangoJob.objects.filter(name='email_scheduler').first()
+        if email_job:
+            job = scheduler.get_job(job_id=email_job.name)
+            info = get_schedulerjob_info(job=job)
+            return Response(info)
+        return Response({'status': 'error','message':'email scheduler do not exist'})
 
-# class JobLogList(APIView):
-#
-#     def get(self,request,format=None):
-#         params = request.query_params.dict()
-#         # TODO 编写根据参数进行joblog查询
-#         queryset = models.ScrapydJobLog.objects.all()
-#         p = PageNumberPagination()
-#         page = p.paginate_queryset(queryset=queryset, request=request, view=self)
-#         s = serializers.JobLogSerializers(page, many=True)
-#         return p.get_paginated_response(s.data)
+    def post(self,request,format=None):
+        """
+        create a email-scheduler-job
+        need params:
+        crontab : 任务调度计划时间，crontab的校验需要前端限制一下
+        """
+        email_job = models.DjangoJob.objects.filter(name='email_scheduler').first()
+        if not email_job:
+            crontab = request.data.get('crontab')
+            if not crontab:
+                crontab = '00 10 * * *'
+            job = scheduler.add_job(send_mass_email,CronTrigger.from_crontab(crontab),id='email_scheduler')
+            info = get_schedulerjob_info(job=job)
+            return Response(info,status=status.HTTP_201_CREATED)
+        return Response({'status':"error","message":'email-scheduler-job is exist'},status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self,request,format=None):
+        """
+        修改邮箱功能调度时间，need params：
+        crrontab: 调度时间
+        """
+        crontab = request.data.get('crontab')
+        if crontab:
+            job = scheduler.reschedule_job(job_id='email_scheduler',trigger=CronTrigger.from_crontab(crontab))
+            info = get_schedulerjob_info(job=job)
+            return Response(info)
+        return Response({"status": "error", "message": "Parameter Error"},status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self,request,format=None):
+        scheduler.remove_job(job_id='email_scheduler')
+        return Response(status=status.HTTP_204_NO_CONTENT)
