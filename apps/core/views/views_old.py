@@ -1,5 +1,5 @@
 from django.shortcuts import render,HttpResponse
-from core import models
+from .. import models
 import requests
 
 

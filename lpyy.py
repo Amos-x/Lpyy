@@ -28,8 +28,8 @@ HTTP_PORT = CONFIG.HTTP_LISTEN_PORT or 8080
 
 WORKERS = CONFIG.WORKERS or 4
 DEBUG = CONFIG.DEBUG
-all_services = ['gunicorn']
-START_TIMEOUT = CONFIG.START_TIMEOUT or 10
+all_services = ['gunicorn','celery','beat']
+TIMEOUT = 10
 
 
 def make_migrations():
@@ -70,13 +70,21 @@ def get_pid(service):
 
 
 def is_running(service):
-    pid = get_pid(service)
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
+    pid_file = get_pid_file_path(service)
+    if os.path.isfile(pid_file):
+        pid = get_pid(service)
+        if pid:
+            try:
+                os.kill(pid, 0)
+            except OSError:
+                return False
+            else:
+                return True
+        else:
+            os.remove(pid_file)
+            return False
     else:
-        return True
+        return False
 
 
 def start_gunicorn():
@@ -89,9 +97,10 @@ def start_gunicorn():
     log_file = get_log_file_path(service)
 
     cmd = [
-        'gunicorn', 'jumpserver.wsgi',
+        'gunicorn', 'Lpyy.wsgi',
         '-b', bind,
         '-w', str(WORKERS),
+        '-k', 'eventlet',
         '--access-logformat', log_format,
         '-p', pid_file,
         '-access-logfile', log_file,
@@ -132,8 +141,8 @@ def start_beat():
     print("\n- Start Beat as Periodic Task Scheduler")
 
     service = 'beat'
-    pid_file = get_pid_file_path('service')
-    log_file = get_log_file_path('service')
+    pid_file = get_pid_file_path(service)
+    log_file = get_log_file_path(service)
 
     # os.environ.setdefault('PYTHONOPTIMIZE', '1')
     if os.getuid() == 0:
@@ -177,7 +186,7 @@ def start_service(service):
     now = time.time()
     for i in services_set:
         while not is_running(i):
-            if int(time.time()) - now < START_TIMEOUT:
+            if int(time.time()) - now < TIMEOUT:
                 time.sleep(1)
                 continue
             else:
@@ -192,12 +201,18 @@ def start_service(service):
 def stop_service(service,sig=15):
     services_set = parse_service(service)
     for i in services_set:
-        if not is_running(i):
-            show_service_status(i)
-            continue
-        print("Stop service: {}".format(i))
+        print("Stopping {} service...".format(i))
         pid = get_pid(i)
         os.kill(pid, sig)
+        now = time.time()
+        while is_running(i):
+            if int(time.time()) - now < TIMEOUT:
+                time.sleep(1)
+                continue
+            else:
+                print("Error: {} stop error, timeout".format(i))
+                return
+        print("{} is stopped".format(i))
 
 
 def show_service_status(service):
@@ -212,22 +227,26 @@ def show_service_status(service):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="""
-    Lpyy service control tools
-    
-    Example:
-    
-    %(prog)s start;
-    """)
+        Lpyy service control tools
+
+        Usage:
+        %(prog)s [start|stop|status|restart] service
+
+        Example:
+
+        %(prog)s start all
+
+        """)
 
     parser.add_argument(
         'action', type=str,
-        choices=('start','stop','status','restart'),
+        choices=('start', 'stop', 'status', 'restart'),
         help='Action to run')
 
     parser.add_argument(
-        "service", type = str, default = "all", nargs = "?",
-        choices = all_services.append("all"),
-        help = "The service to start"
+        "service", type=str, default="all", nargs="?",
+        choices=['all', 'gunicorn', 'celery', 'beat'],
+        help="The service to start"
     )
     args = parser.parse_args()
 
@@ -243,3 +262,4 @@ if __name__ == '__main__':
         start_service(args.service)
     else:
         show_service_status(args.service)
+

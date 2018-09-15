@@ -16,9 +16,6 @@ class Config:
     # Gunicorn workers, default 4
     # WORKERS = 4
 
-    # Gunicorn start timeout, default 10s
-    # START_TIMEOUT = 10
-
     # Django security setting, if your disable debug model, you should setting that
     ALLOWED_HOSTS = ['*']
 
@@ -50,6 +47,7 @@ class Config:
     EMAIL_HOST_USER = 'creatson@creatson.com'
     EMAIL_HOST_PASSWORD = 'Krs201705'
     EMAIL_USE_SSL = True
+    EMAIL_SUBJECT_PREFIX = 'Operation'
 
     # When Django start it will bind this host and port
     # ./manage.py runserver 127.0.0.1:8080
