@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="main">
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <!-- OVERVIEW -->
+            <div class="panel panel-headline">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Dashboard</h3>
+{#                    <p class="panel-subtitle"></p>#}
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="metric">
+                                <span class="icon"><i class="fa fa-server"></i></span>
+                                <p>
+                                    <span class="number">{{ clients }}</span>
+                                    <span class="title">clients</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric">
+                                <span class="icon"><i class="fa fa-paste"></i></span>
+                                <p>
+                                    <span class="number">{{ projects }}</span>
+                                    <span class="title">Projects</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric">
+                                <span class="icon"><i class="fa fa-play"></i></span>
+                                <p>
+                                    <span class="number">{{ running }}</span>
+                                    <span class="title">Running</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric">
+                                <span class="icon"><i class="fa fa-calendar"></i></span>
+                                <p>
+                                    <span class="number">{{ tasks }}</span>
+                                    <span class="title">Tasks</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END OVERVIEW -->
+        </div>
+    </div>
+    <!-- END MAIN CONTENT -->
+</div>
+{% endblock %}

@@ -45,6 +45,8 @@ LOG_LEVEL = 'DEBUG' if DEBUG else CONFIG.LOG_LEVEL or 'WARNING'
 
 ALLOWED_HOSTS = CONFIG.ALLOWED_HOSTS or []
 
+LOCAL_DOMAIN = CONFIG.LOCAL_DOMAIN or '127.0.0.1'
+HTTP_LISTEN_PORT = CONFIG.HTTP_LISTEN_PORT or 8000
 
 # Application definition
 
@@ -60,7 +62,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'core',
-    'apps.api'
+    'api'
 ]
 
 MIDDLEWARE = [
@@ -78,7 +80,7 @@ ROOT_URLCONF = 'Lpyy.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -139,17 +141,21 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-# 静态文件设为Vue项目的静态文件
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "static"),
-# ]
+# 静态文件设为前端项目的静态文件
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+# 上传文件保存路径
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_URL = '/media/'
 
 # 项目文件夹名称
 PROJECTS_FOLDER = 'projects'

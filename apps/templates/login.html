@@ -1,0 +1,106 @@
+
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Lpyy </title>
+    {% load static %}
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+
+{% load static %}
+<!-- css file -->
+<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/mycss.css' %}" rel="stylesheet">
+<link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
+<!-- scripts -->
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+    <style>
+        .prompt-box {
+            position: fixed;
+            z-index: 999999;
+            top: 12px;
+            right: 12px;
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="container loginColumns">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Lpyy开源爬虫管理平台</h2>
+                <p>
+                    开源的爬虫管理平台，实现sacrapy爬虫的管理，启动停止，定时任务等功能
+                </p>
+                <p>
+                    使用Python3 / Django 进行开发，基于scrapyd，celery
+                </p>
+                <p>
+                    采纳分布式架构，可实现爬虫多节点同时运行，日志审计等
+                </p>
+                <p>此项目仅用于个人研究</p>
+                <a class="btn btn-lg btn-success" href="https://github.com/Amos-x/Lpyy" target="_blank" role="button">GitHub</a>
+
+
+            </div>
+            <div class="col-md-6">
+                <div class="ibox-content">
+                    <div>
+                        <img src="{% static 'img/favicon.png' %}" width="60" height="60">
+                        <span class="font-bold text-center" style="font-size: 24px; font-family: inherit; margin-left: 20px">登录</span>
+                    </div>
+                    <form class="m-t" role="form" method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="username_or_email" placeholder="用户名" required="" value="">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control" name="password" placeholder="密码" required="">
+                        </div>
+                        <div>
+
+                        </div>
+                        <button type="submit" class="btn btn-primary full-width m-b">登录</button>
+
+
+
+                        <a href="{% url 'forgot_password' %}">
+                            <small>忘记密码?</small>
+                        </a>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <hr/>
+    </div>
+    {% if messages %}
+        <div class="prompt-box">
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <i class="fa fa-check-circle"></i> {{ message }}
+                </div>
+            {% elif message.tags == 'warning' %}
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <i class="fa fa-warning"></i> {{ message }}
+                </div>
+            {% elif message.tags == 'error' %}
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <i class="fa fa-times-circle"></i> {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+    {% endif %}
+</body>
+</html>

@@ -3,6 +3,7 @@
 
 from rest_framework import serializers
 from core import models
+from django_celery_beat.models import CrontabSchedule,IntervalSchedule,PeriodicTask
 
 
 class ClientSimpleInfoSerializers(serializers.ModelSerializer):
@@ -39,7 +40,7 @@ class ClientSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = models.Client
-        fields = ('id','name','ip','port','description','auth','username','password')
+        fields = ('id','name','ip','port','description','auth','username','password','status')
 
 
 class ProjectSerializers(serializers.ModelSerializer):
@@ -64,28 +65,24 @@ class ProDepSerializers(serializers.ModelSerializer):
         fields = ('id','name','description','egg','built_at','pro_deploy')
 
 
-# class TaskSerializers(serializers.ModelSerializer):
-#     client = ClientSimpleInfoSerializers(read_only=True)
-#     project = ProjectSimpleInfoSerializers(read_only=True)
-#
-#     class Meta:
-#         model = models.Task
-#         fields = ('client','project','spiders','crontab','is_active','created_at','updated_at')
-#
-#
-# class DjangoJobSerializers(serializers.ModelSerializer):
-#     jobinfo = TaskSerializers(read_only=True)
-#
-#     class Meta:
-#         model = models.DjangoJob
-#         fields = ('id','name','next_run_time','jobinfo')
-#
-#
-# class JobLogSerializers(serializers.ModelSerializer):
-#     client = ClientSimpleInfoSerializers(read_only=True)
-#     project = ProjectSimpleInfoSerializers(read_only=True)
-#     task = DjangoJobSimpleInfoSerializers(read_only=True)
-#
-#     class Meta:
-#         model = models.ScrapydJobLog
-#         fields = ('id','client','project','spider','job','task','created_at')
+class CrontabScheduleSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = CrontabSchedule
+        fields = ('id','minute','hour','day_of_week','day_of_month','month_of_year')
+
+
+class IntervalScheduleSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = IntervalSchedule
+        fields = ('id','every','period')
+
+
+class PeriodicTaskSerializers(serializers.ModelSerializer):
+    interval = IntervalScheduleSerializers(read_only=True)
+    crontab = CrontabScheduleSerializers(read_only=True)
+
+    class Meta:
+        model = PeriodicTask
+        fields = ('id','name','task','interval','crontab','kwargs','description')

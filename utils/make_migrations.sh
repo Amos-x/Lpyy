@@ -1,6 +1,8 @@
 #!/bin/bash
 #
 
-python3 ../apps/manage.py makemigrations
+basedir=$(cd `dirname $0`; pwd)
 
-python3 ../apps/manage.py migrate
+python3 $basedir/../apps/manage.py makemigrations
+
+python3 $basedir/../apps/manage.py migrate

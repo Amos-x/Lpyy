@@ -27,7 +27,6 @@ class Project(models.Model):
     built_at = models.DateTimeField(default=None, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # clients = models.ManyToManyField(Client, through='Deploy', unique=False)
 
     def __str__(self):
         return self.name
@@ -43,6 +42,15 @@ class Deploy(models.Model):
 
     class Meta:
         unique_together = ('client', 'project')
+
+
+class EmailRecord(models.Model):
+    code = models.CharField(max_length=128)
+    send_type = models.CharField(max_length=50)
+    email = models.EmailField(max_length=128)
+    expire_time = models.DateTimeField()
+    is_use = models.BooleanField(default=False)
+    create_time = models.DateTimeField(auto_now_add=True)
 
 
 # class Task(models.Model):
@@ -66,3 +74,4 @@ class Deploy(models.Model):
 #     job = models.CharField(max_length=255)
 #     task = models.ForeignKey(DjangoJob,null=True,blank=True,related_name='joblog',on_delete=models.DO_NOTHING)
 #     created_at = models.DateTimeField(auto_now_add=True)
+

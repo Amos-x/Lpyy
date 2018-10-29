@@ -103,7 +103,7 @@ def start_gunicorn():
         '-k', 'eventlet',
         '--access-logformat', log_format,
         '-p', pid_file,
-        '-access-logfile', log_file,
+        '--access-logfile', log_file,
         '--daemon',
     ]
     if DEBUG:
@@ -203,7 +203,8 @@ def stop_service(service,sig=15):
     for i in services_set:
         print("Stopping {} service...".format(i))
         pid = get_pid(i)
-        os.kill(pid, sig)
+        if pid:
+            os.kill(pid, sig)
         now = time.time()
         while is_running(i):
             if int(time.time()) - now < TIMEOUT:

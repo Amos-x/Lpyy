@@ -21,8 +21,8 @@ from rest_framework.documentation import include_docs_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path(r'', TemplateView.as_view(template_name="index.html")),
-    path('core/', include('core.urls')),
-    path('api/', include('apps.api.urls')),
+    path('', include('core.urls')),
+    path('api/', include('api.urls')),
     path('api-auth/',include('rest_framework.urls')),
     path('apidocs/',include_docs_urls(title="舆论监控平台API"))
 ]

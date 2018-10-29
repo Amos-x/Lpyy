@@ -22,6 +22,9 @@ class Config:
     # Development env open this, when error occur display the full process track, Production disable it
     DEBUG = True
 
+    # local doamin or ip，used for send email, default 127.0.0.1.
+    LOCAL_DOMAIN = '127.0.0.1'
+
     # DEBUG, INFO, WARNING, ERROR, CRITICAL can set. See https://docs.djangoproject.com/en/1.10/topics/logging/
     LOG_LEVEL = 'DEBUG'
     LOG_DIR = os.path.join(BASE_DIR, 'logs')
@@ -50,7 +53,6 @@ class Config:
     EMAIL_SUBJECT_PREFIX = 'Operation'
 
     # When Django start it will bind this host and port
-    # ./manage.py runserver 127.0.0.1:8080
     HTTP_BIND_HOST = '0.0.0.0'
     HTTP_LISTEN_PORT = 8000
 

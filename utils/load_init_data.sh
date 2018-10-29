@@ -1,4 +1,6 @@
 #!/bin/bash
 #
 
-python3 ../apps/manage.py loaddata init
+basedir=$(cd `dirname $0`; pwd)
+
+python3 $basedir/../apps/manage.py loaddata init

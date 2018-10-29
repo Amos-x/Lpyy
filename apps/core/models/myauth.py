@@ -3,39 +3,36 @@
 
 from django.db import models
 from django.contrib.auth.models import BaseUserManager,AbstractBaseUser,PermissionsMixin
+from ..storage import ImageStorage
 
 
 class MyUserManager(BaseUserManager):
 
-    def create_user(self,username,email,full_name,password=None):
+    def create_user(self,username,email,password=None):
         """
         创建并保存用户，必填email，用户名，密码
         """
         if not email:
             raise ValueError('User must have an email address')
-        if not full_name:
-            raise ValueError('The user must fill in the full name')
         if not username:
             raise ValueError('The username is required')
 
         user = self.model(
             email = self.normalize_email(email),
             username = username,
-            full_name = full_name,
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self,username,email,full_name,password):
+    def create_superuser(self,username,email,password):
         """
         创建超级管理员用户
         """
         user = self.create_user(
             username = username,
             email = email,
-            full_name = full_name,
             password = password
         )
 
@@ -44,22 +41,27 @@ class MyUserManager(BaseUserManager):
         return user
 
 
+def upload_img_path(instance,filename):
+    return "{0}/{1}/{2}".format('img',instance.username,filename)
+
+
 class UserProfile(AbstractBaseUser,PermissionsMixin):
     """
     自定义用户字段信息,拓展User类
     """
-    email = models.EmailField(max_length=128,verbose_name='email address')
+    email = models.EmailField(max_length=128,verbose_name='email address',unique=True)
     username = models.CharField('用户名',max_length=32,unique=True)
     full_name = models.CharField('真实姓名',max_length=10)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     create_date = models.DateField('创建时间',auto_now_add=True,blank=True)
+    image = models.ImageField(upload_to=upload_img_path,storage=ImageStorage())
 
     objects = MyUserManager()
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['full_name','email']
+    REQUIRED_FIELDS = ['email']
 
     def get_full_name(self):
         # 用户的正式标识符，如全名
