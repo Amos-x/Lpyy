@@ -1,11 +1,12 @@
 # Created by .ignore support plugin (hsz.mobi)
 # ideal pycharm
-/.idea
+.idea/
+.DS_Store
 
 # python
 *.pyc
 __pycache__/
-
+*~
 # vue front
 # /dist
 # /build
@@ -28,3 +29,4 @@ migrations/
 
 # keep empty dir
 !.gitkeep
+
